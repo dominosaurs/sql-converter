@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#102820"/>
+  <circle cx="980" cy="90" r="210" fill="#f59f5c" opacity=".22"/>
+  <circle cx="160" cy="560" r="260" fill="#f6e7bf" opacity=".14"/>
+  <path d="M120 152h370c118 0 214 80 214 178s-96 178-214 178H120" fill="none" stroke="#f6e7bf" stroke-width="34" stroke-linecap="round"/>
+  <path d="M154 330h500M486 210l168 120-168 120" fill="none" stroke="#f59f5c" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="760" y="240" fill="#f6e7bf" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="76" font-weight="800">SQL Converter</text>
+  <text x="762" y="326" fill="#f6e7bf" opacity=".82" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="34">MariaDB/MySQL dumps to SQLite SQL</text>
+  <text x="762" y="386" fill="#f59f5c" font-family="Avenir Next, Trebuchet MS, sans-serif" font-size="30">Large-file browser streaming</text>
+</svg>
