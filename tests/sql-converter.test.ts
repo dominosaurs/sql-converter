@@ -40,14 +40,36 @@ describe('convertMariaDbToSqlite', () => {
         expect(result.warnings).toHaveLength(1)
     })
 
-    test('preserves inserts with semicolons inside strings', () => {
+    test('splits multi-row inserts with semicolons inside strings', () => {
         const input =
             "INSERT INTO `notes` (`body`) VALUES ('one; two'), ('three');"
 
         const result = convertMariaDbToSqlite(input)
 
         expect(result.sql.trim()).toBe(
-            'INSERT INTO "notes" ("body") VALUES (\'one; two\'), (\'three\');',
+            'INSERT INTO "notes" ("body") VALUES (\'one; two\');\nINSERT INTO "notes" ("body") VALUES (\'three\');',
+        )
+    })
+
+    test('preserves single-row inserts with html entity semicolons', () => {
+        const input =
+            "INSERT INTO `expenses` (`description`) VALUES ('PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG');"
+
+        const result = convertMariaDbToSqlite(input)
+
+        expect(result.sql.trim()).toBe(
+            'INSERT INTO "expenses" ("description") VALUES (\'PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG\');',
+        )
+    })
+
+    test('splits risky multi-row inserts with apostrophes before semicolon values', () => {
+        const input =
+            "INSERT INTO `rent_item_rents` VALUES ('BIKIN JALAN DI KEBUN PAK MU\\'MIN'),('PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG');"
+
+        const result = convertMariaDbToSqlite(input)
+
+        expect(result.sql.trim()).toBe(
+            "INSERT INTO \"rent_item_rents\" VALUES ('BIKIN JALAN DI KEBUN PAK MU''MIN');\nINSERT INTO \"rent_item_rents\" VALUES ('PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG');",
         )
     })
 
@@ -188,6 +210,17 @@ describe('convertMariaDbToSqlite', () => {
         expect(result.sql).toContain(`'{"name":"OWNER''S PRODUCT"}'`)
         expect(result.sql).not.toContain('\\"')
         expect(result.sql).not.toContain("\\'")
+    })
+
+    test('uses standard sqlite quote escaping for apostrophes in insert values', () => {
+        const input =
+            "INSERT INTO `rent_item_rents` VALUES ('BIKIN JALAN DI KEBUN PAK MU\\'MIN','PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG');"
+
+        const result = convertMariaDbToSqlite(input)
+
+        expect(result.sql.trim()).toBe(
+            "INSERT INTO \"rent_item_rents\" VALUES ('BIKIN JALAN DI KEBUN PAK MU''MIN','PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG');",
+        )
     })
 
     test('preserves literal backticks inside JSON string values', () => {
