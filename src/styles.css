@@ -346,6 +346,64 @@ h2 {
     font-size: 1.35rem;
 }
 
+.sample-section {
+    display: grid;
+    gap: 18px;
+    padding: 30px;
+    margin-top: 22px;
+    background: rgba(16, 40, 32, 0.92);
+    border: 1px solid rgba(16, 40, 32, 0.14);
+    border-radius: 30px;
+    box-shadow: 0 22px 54px rgba(16, 40, 32, 0.16);
+}
+
+.sample-heading {
+    max-width: 720px;
+    color: #f7efdc;
+}
+
+.sample-heading p:last-child {
+    margin-bottom: 0;
+    line-height: 1.6;
+    color: rgba(247, 239, 220, 0.76);
+}
+
+.sample-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.sample-grid article {
+    overflow: hidden;
+    background: rgba(247, 239, 220, 0.08);
+    border: 1px solid rgba(247, 239, 220, 0.14);
+    border-radius: 22px;
+}
+
+.sample-grid h3 {
+    padding: 16px 18px;
+    margin: 0;
+    font-size: 0.92rem;
+    color: #f7efdc;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: rgba(247, 239, 220, 0.08);
+}
+
+.sample-grid pre {
+    padding: 18px;
+    margin: 0;
+    overflow-x: auto;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: #f7efdc;
+}
+
+.sample-grid code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
 .warnings-panel {
     margin-top: 22px;
 }
@@ -411,7 +469,8 @@ h2 {
     }
 
     .hero,
-    .content-grid {
+    .content-grid,
+    .sample-grid {
         grid-template-columns: 1fr;
     }
 

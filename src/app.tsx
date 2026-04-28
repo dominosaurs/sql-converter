@@ -355,6 +355,46 @@ export default function App() {
                 </article>
             </section>
 
+            <section aria-labelledby="sample-title" className="sample-section">
+                <div className="sample-heading">
+                    <p className="card-kicker">Example conversion</p>
+                    <h2 id="sample-title">MariaDB dump SQL into SQLite SQL</h2>
+                    <p>
+                        The converter keeps your data and rewrites common dump
+                        syntax so SQLite can import it.
+                    </p>
+                </div>
+
+                <div className="sample-grid">
+                    <article>
+                        <h3>MariaDB / MySQL input</h3>
+                        <pre>
+                            <code>{`CREATE TABLE \`users\` (
+  \`id\` bigint unsigned NOT NULL AUTO_INCREMENT,
+  \`name\` varchar(255) NOT NULL,
+  PRIMARY KEY (\`id\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO \`users\` VALUES
+(1,'O\\'Connor');`}</code>
+                        </pre>
+                    </article>
+
+                    <article>
+                        <h3>SQLite output</h3>
+                        <pre>
+                            <code>{`CREATE TABLE "users" (
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  "name" TEXT NOT NULL
+);
+
+INSERT INTO "users" VALUES
+(1,'O''Connor');`}</code>
+                        </pre>
+                    </article>
+                </div>
+            </section>
+
             {warnings.length > 0 ? (
                 <section
                     aria-labelledby="warnings-title"
