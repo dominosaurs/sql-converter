@@ -334,30 +334,6 @@ h2 {
     margin-top: 22px;
 }
 
-.project-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 22px;
-}
-
-.project-links a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 42px;
-    padding: 9px 16px;
-    font-weight: 900;
-    color: #102820;
-    text-decoration: none;
-    background: rgba(255, 252, 242, 0.7);
-    border: 1px solid rgba(16, 40, 32, 0.14);
-    border-radius: 999px;
-}
-
-.project-links a:hover {
-    background: rgba(245, 159, 92, 0.22);
-}
-
 .content-grid article,
 .warnings-panel {
     padding: 28px;
@@ -383,6 +359,51 @@ h2 {
     word-break: break-word;
 }
 
+.site-footer {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 26px 4px 0;
+    margin-top: 30px;
+    color: rgba(16, 40, 32, 0.72);
+}
+
+.site-footer strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #102820;
+}
+
+.site-footer p {
+    max-width: 640px;
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+
+.site-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.site-footer a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 8px 14px;
+    font-weight: 900;
+    color: #102820;
+    text-decoration: none;
+    background: rgba(255, 252, 242, 0.6);
+    border: 1px solid rgba(16, 40, 32, 0.14);
+    border-radius: 999px;
+}
+
+.site-footer a:hover {
+    background: rgba(245, 159, 92, 0.22);
+}
+
 @media (max-width: 860px) {
     .page-shell {
         width: min(100% - 20px, 680px);
@@ -396,5 +417,10 @@ h2 {
 
     .hero-copy {
         min-height: 420px;
+    }
+
+    .site-footer {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
