@@ -14,6 +14,7 @@ type FileSystemWritableFileStreamLike = {
 }
 
 type FileSystemFileHandleLike = {
+    name?: string
     createWritable(): Promise<FileSystemWritableFileStreamLike>
 }
 
@@ -108,8 +109,9 @@ export default function App() {
                 ],
             })
 
+            const outputName = outputHandle.name ?? suggestedOutputFileName
             writable = await outputHandle.createWritable()
-            setOutputFileName(suggestedOutputFileName)
+            setOutputFileName(outputName)
             setStatus('')
             setConversionState('converting')
 
@@ -126,7 +128,7 @@ export default function App() {
 
             setWarnings(result.warnings)
             setStatus(
-                `Success. Converted ${result.statementsConverted.toLocaleString()} SQL statements to ${suggestedOutputFileName}.`,
+                `Success. Converted ${result.statementsConverted.toLocaleString()} SQL statements to ${outputName}.`,
             )
             setConversionState('success')
         } catch (error) {
