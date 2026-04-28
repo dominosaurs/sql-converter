@@ -5,6 +5,8 @@ import {
     convertMariaDbBlobToSqlite,
 } from './sql-converter'
 
+declare const __APP_VERSION__: string
+
 type FileSystemWritableFileStreamLike = {
     write(chunk: string): Promise<void>
     close(): Promise<void>
@@ -351,23 +353,6 @@ export default function App() {
                 </article>
             </section>
 
-            <section aria-label="Project links" className="project-links">
-                <a
-                    href="https://github.com/dominosaurs/sql-converter"
-                    rel="noreferrer"
-                    target="_blank"
-                >
-                    View source on GitHub
-                </a>
-                <a
-                    href="https://github.com/dominosaurs/sql-converter/issues"
-                    rel="noreferrer"
-                    target="_blank"
-                >
-                    Report an issue
-                </a>
-            </section>
-
             {warnings.length > 0 ? (
                 <section
                     aria-labelledby="warnings-title"
@@ -394,6 +379,34 @@ export default function App() {
                     </details>
                 </section>
             ) : null}
+
+            <footer className="site-footer">
+                <div>
+                    <strong>SQL Converter v{__APP_VERSION__}</strong>
+                    <p>
+                        A browser-side MariaDB/MySQL dump to SQLite SQL
+                        converter. Files are processed locally and are not
+                        uploaded.
+                    </p>
+                </div>
+
+                <nav aria-label="Footer links">
+                    <a
+                        href="https://github.com/dominosaurs/sql-converter"
+                        rel="noreferrer"
+                        target="_blank"
+                    >
+                        GitHub
+                    </a>
+                    <a
+                        href="https://github.com/dominosaurs/sql-converter/issues"
+                        rel="noreferrer"
+                        target="_blank"
+                    >
+                        Issues
+                    </a>
+                </nav>
+            </footer>
         </main>
     )
 }
