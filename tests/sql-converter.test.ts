@@ -73,6 +73,29 @@ describe('convertMariaDbToSqlite', () => {
         )
     })
 
+    test('splits multi-row inserts when semicolon appears many rows after apostrophe escaping', () => {
+        const middleRows = Array.from(
+            { length: 150 },
+            (_, index) => `('middle row ${index + 1}')`,
+        )
+        const input = [
+            "INSERT INTO `rent_item_rents` VALUES ('BIKIN JALAN DI KEBUN PAK MU\\'MIN')",
+            ...middleRows,
+            "('PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG')",
+        ].join(',')
+
+        const result = convertMariaDbToSqlite(`${input};`)
+        const statements = result.sql.trim().split('\n')
+
+        expect(statements).toHaveLength(152)
+        expect(statements[0]).toBe(
+            "INSERT INTO \"rent_item_rents\" VALUES ('BIKIN JALAN DI KEBUN PAK MU''MIN');",
+        )
+        expect(statements[151]).toBe(
+            'INSERT INTO "rent_item_rents" VALUES (\'PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG\');',
+        )
+    })
+
     test('skips MariaDB database and locking statements', () => {
         const input = `
             CREATE DATABASE \`legacy\`;
