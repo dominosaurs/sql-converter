@@ -203,16 +203,7 @@ function convertStatement(
         return convertCreateTable(trimmed, context)
     }
 
-    const converted = convertGeneralStatement(trimmed)
-
-    if (
-        /^INSERT\b/i.test(converted) &&
-        hasSemicolonInsideSingleQuotedString(converted)
-    ) {
-        return splitMultiRowInsert(converted)
-    }
-
-    return converted
+    return convertGeneralStatement(trimmed)
 }
 
 function convertCreateTable(
@@ -483,93 +474,6 @@ function convertGeneralStatement(statement: string): string {
         .replace(/\s+;/g, ';')
         .replace(/[ \t]+$/gm, '')
         .trim()
-}
-
-function hasSemicolonInsideSingleQuotedString(statement: string): boolean {
-    let inSingleQuote = false
-
-    for (let index = 0; index < statement.length; index += 1) {
-        const char = statement[index]
-        const next = statement[index + 1]
-
-        if (!inSingleQuote) {
-            if (char === "'") {
-                inSingleQuote = true
-            }
-            continue
-        }
-
-        if (char === "'" && next === "'") {
-            index += 1
-            continue
-        }
-
-        if (char === "'") {
-            inSingleQuote = false
-            continue
-        }
-
-        if (char === ';') {
-            return true
-        }
-    }
-
-    return false
-}
-
-function splitMultiRowInsert(statement: string): string {
-    const valuesKeywordIndex = findValuesKeywordOutsideQuotes(statement)
-
-    if (valuesKeywordIndex === -1) {
-        return statement
-    }
-
-    const prefix = statement
-        .slice(0, valuesKeywordIndex + 'VALUES'.length)
-        .trimEnd()
-    const values = statement.slice(valuesKeywordIndex + 'VALUES'.length).trim()
-    const valuesWithoutSemicolon = values.endsWith(';')
-        ? values.slice(0, -1)
-        : values
-    const rows = splitCommaSeparated(valuesWithoutSemicolon)
-
-    if (rows.length <= 1 || !rows.every(row => row.startsWith('('))) {
-        return statement
-    }
-
-    return rows.map(row => `${prefix} ${row}`).join(';\n')
-}
-
-function findValuesKeywordOutsideQuotes(statement: string): number {
-    let quote: "'" | '"' | '`' | null = null
-
-    for (let index = 0; index < statement.length; index += 1) {
-        const char = statement[index]
-        const next = statement[index + 1]
-
-        if (quote) {
-            if (char === "'" && quote === "'" && next === "'") {
-                index += 1
-                continue
-            }
-
-            if (char === quote) {
-                quote = null
-            }
-            continue
-        }
-
-        if (char === "'" || char === '"' || char === '`') {
-            quote = char
-            continue
-        }
-
-        if (/^VALUES\b/i.test(statement.slice(index))) {
-            return index
-        }
-    }
-
-    return -1
 }
 
 function extractIndexes(

@@ -40,14 +40,14 @@ describe('convertMariaDbToSqlite', () => {
         expect(result.warnings).toHaveLength(1)
     })
 
-    test('splits multi-row inserts with semicolons inside strings', () => {
+    test('preserves multi-row inserts with semicolons inside strings', () => {
         const input =
             "INSERT INTO `notes` (`body`) VALUES ('one; two'), ('three');"
 
         const result = convertMariaDbToSqlite(input)
 
         expect(result.sql.trim()).toBe(
-            'INSERT INTO "notes" ("body") VALUES (\'one; two\');\nINSERT INTO "notes" ("body") VALUES (\'three\');',
+            'INSERT INTO "notes" ("body") VALUES (\'one; two\'), (\'three\');',
         )
     })
 
@@ -62,18 +62,18 @@ describe('convertMariaDbToSqlite', () => {
         )
     })
 
-    test('splits risky multi-row inserts with apostrophes before semicolon values', () => {
+    test('preserves risky multi-row inserts with apostrophes before semicolon values', () => {
         const input =
             "INSERT INTO `rent_item_rents` VALUES ('BIKIN JALAN DI KEBUN PAK MU\\'MIN'),('PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG');"
 
         const result = convertMariaDbToSqlite(input)
 
         expect(result.sql.trim()).toBe(
-            "INSERT INTO \"rent_item_rents\" VALUES ('BIKIN JALAN DI KEBUN PAK MU''MIN');\nINSERT INTO \"rent_item_rents\" VALUES ('PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG');",
+            "INSERT INTO \"rent_item_rents\" VALUES ('BIKIN JALAN DI KEBUN PAK MU''MIN'),('PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG');",
         )
     })
 
-    test('splits multi-row inserts when semicolon appears many rows after apostrophe escaping', () => {
+    test('preserves multi-row inserts when semicolon appears many rows after apostrophe escaping', () => {
         const middleRows = Array.from(
             { length: 150 },
             (_, index) => `('middle row ${index + 1}')`,
@@ -85,14 +85,12 @@ describe('convertMariaDbToSqlite', () => {
         ].join(',')
 
         const result = convertMariaDbToSqlite(`${input};`)
-        const statements = result.sql.trim().split('\n')
 
-        expect(statements).toHaveLength(152)
-        expect(statements[0]).toBe(
-            "INSERT INTO \"rent_item_rents\" VALUES ('BIKIN JALAN DI KEBUN PAK MU''MIN');",
+        expect(result.sql.trim()).toContain(
+            "INSERT INTO \"rent_item_rents\" VALUES ('BIKIN JALAN DI KEBUN PAK MU''MIN'),('middle row 1')",
         )
-        expect(statements[151]).toBe(
-            'INSERT INTO "rent_item_rents" VALUES (\'PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG\');',
+        expect(result.sql.trim()).toContain(
+            "('middle row 150'),('PENGANTARAN SOLAR EXCA SANY 01 &amp; EXCA XCMG');",
         )
     })
 
