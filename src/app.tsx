@@ -36,22 +36,35 @@ type ConversionState =
     | 'error'
     | 'cancelled'
 
+const DEFAULT_STATUS =
+    'Choose a MariaDB .sql dump, then convert it to a SQLite import file.'
+const UNSUPPORTED_BROWSER_STATUS =
+    'This browser cannot stream directly to disk. Use Chrome or Edge before selecting a large SQL file.'
+
 export default function App() {
     const inputFileRef = useRef<null | HTMLInputElement>(null)
     const abortControllerRef = useRef<AbortController | null>(null)
+    const isBrowserSupported = supportsSaveFilePicker()
     const [warnings, setWarnings] = useState<ConversionWarning[]>([])
     const [progress, setProgress] = useState<ConversionProgress | null>(null)
     const [selectedFileName, setSelectedFileName] = useState('')
     const [selectedFileSize, setSelectedFileSize] = useState(0)
     const [outputFileName, setOutputFileName] = useState('')
-    const [status, setStatus] = useState(
-        'Choose a MariaDB .sql dump, then convert it to a SQLite import file.',
+    const [status, setStatus] = useState(() =>
+        isBrowserSupported ? DEFAULT_STATUS : UNSUPPORTED_BROWSER_STATUS,
     )
-    const [conversionState, setConversionState] =
-        useState<ConversionState>('idle')
+    const [conversionState, setConversionState] = useState<ConversionState>(
+        () => (isBrowserSupported ? 'idle' : 'error'),
+    )
     const [isConverting, setIsConverting] = useState(false)
 
     const handleConvertClick = () => {
+        if (!isBrowserSupported) {
+            setStatus(UNSUPPORTED_BROWSER_STATUS)
+            setConversionState('error')
+            return
+        }
+
         const file = inputFileRef.current?.files?.[0]
 
         if (!file) {
@@ -63,6 +76,12 @@ export default function App() {
     }
 
     const handleFileChange = (file: File | undefined) => {
+        if (!isBrowserSupported) {
+            setStatus(UNSUPPORTED_BROWSER_STATUS)
+            setConversionState('error')
+            return
+        }
+
         setSelectedFileName(file?.name ?? '')
         setSelectedFileSize(file?.size ?? 0)
 
@@ -78,9 +97,7 @@ export default function App() {
             .showSaveFilePicker
 
         if (!saveFilePicker) {
-            setStatus(
-                'This browser cannot stream directly to disk. Use Chrome or Edge for large 1GB files.',
-            )
+            setStatus(UNSUPPORTED_BROWSER_STATUS)
             setConversionState('error')
             return
         }
@@ -168,9 +185,9 @@ export default function App() {
         setSelectedFileSize(0)
         setOutputFileName('')
         setStatus(
-            'Choose a MariaDB .sql dump, then convert it to a SQLite import file.',
+            isBrowserSupported ? DEFAULT_STATUS : UNSUPPORTED_BROWSER_STATUS,
         )
-        setConversionState('idle')
+        setConversionState(isBrowserSupported ? 'idle' : 'error')
     }
 
     const isFinished =
@@ -212,10 +229,12 @@ export default function App() {
                         </p>
                     </div>
 
-                    <label className="file-drop">
+                    <label
+                        className={`file-drop ${isBrowserSupported ? '' : 'file-drop-disabled'}`}
+                    >
                         <input
                             accept=".sql"
-                            disabled={isConverting}
+                            disabled={isConverting || !isBrowserSupported}
                             onChange={event =>
                                 handleFileChange(event.currentTarget.files?.[0])
                             }
@@ -231,13 +250,14 @@ export default function App() {
                     <div className="action-row">
                         <button
                             className="primary-action"
-                            disabled={isConverting}
+                            disabled={isConverting || !isBrowserSupported}
                             onClick={handleConvertClick}
                             type="button"
                         >
-                            {isConverting
-                                ? 'Converting...'
-                                : 'Convert to SQLite SQL'}
+                            {getPrimaryActionLabel(
+                                isBrowserSupported,
+                                isConverting,
+                            )}
                         </button>
 
                         {isConverting ? (
@@ -458,6 +478,23 @@ function formatBytes(bytes: number): string {
     if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(1)} KB`
     if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(1)} MB`
     return `${(bytes / 1024 ** 3).toFixed(2)} GB`
+}
+
+function supportsSaveFilePicker(): boolean {
+    return (
+        typeof window !== 'undefined' &&
+        typeof (window as WindowWithSaveFilePicker).showSaveFilePicker ===
+            'function'
+    )
+}
+
+function getPrimaryActionLabel(
+    isBrowserSupported: boolean,
+    isConverting: boolean,
+): string {
+    if (!isBrowserSupported) return 'Browser not supported'
+    if (isConverting) return 'Converting...'
+    return 'Convert to SQLite SQL'
 }
 
 function getProgressPercent(bytesRead: number, totalBytes: number): number {
